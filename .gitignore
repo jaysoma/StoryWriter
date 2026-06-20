@@ -1,0 +1,29 @@
+# Byte-compiled / optimized
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# StoryWriter runtime artifacts
+uploads/
+run.out
+*.out
+*_run.jsonl
+
+# Editor / backup files
+*.bak
+*.bak-*
+*.librosa-bak-*
+
+# Logs
+*.log
+
+# OS cruft
+.DS_Store
+Thumbs.db

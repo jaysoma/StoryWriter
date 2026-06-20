@@ -1,0 +1,610 @@
+{
+  "genres": [
+    "Pop",
+    "Rock",
+    "R&B",
+    "Dance"
+  ],
+  "songs": [
+    {
+      "file": "01. Mark Morrison - Return of the Mack (C & J Street Mix).mp3",
+      "artist": "Mark Morrison",
+      "title": "Return of the Mack (C & J Street Mix)",
+      "genre": "Pop"
+    },
+    {
+      "file": "02. Big Mountain - Baby, I Love Your Way.mp3",
+      "artist": "Big Mountain",
+      "title": "Baby, I Love Your Way",
+      "genre": "R&B"
+    },
+    {
+      "file": "03. Diddy - I’ll Be Missing You (feat. Faith Evans & 112).mp3",
+      "artist": "Diddy",
+      "title": "I’ll Be Missing You (feat. Faith Evans & 112)",
+      "genre": "Pop"
+    },
+    {
+      "file": "04. All Saints - Pure Shores.mp3",
+      "artist": "All Saints",
+      "title": "Pure Shores",
+      "genre": "Rock"
+    },
+    {
+      "file": "05. Cher - Believe.mp3",
+      "artist": "Cher",
+      "title": "Believe",
+      "genre": "Pop"
+    },
+    {
+      "file": "06. Simply Red - Stars.mp3",
+      "artist": "Simply Red",
+      "title": "Stars",
+      "genre": "Pop"
+    },
+    {
+      "file": "07. Lene Marlin - Sitting Down Here.mp3",
+      "artist": "Lene Marlin",
+      "title": "Sitting Down Here",
+      "genre": "Rock"
+    },
+    {
+      "file": "08. Alanis Morissette - Ironic (2015 Remaster).mp3",
+      "artist": "Alanis Morissette",
+      "title": "Ironic (2015 Remaster)",
+      "genre": "Pop"
+    },
+    {
+      "file": "09. Donna Lewis - I Love You Always Forever.mp3",
+      "artist": "Donna Lewis",
+      "title": "I Love You Always Forever",
+      "genre": "Pop"
+    },
+    {
+      "file": "10. Shola Ama - You Might Need Somebody.mp3",
+      "artist": "Shola Ama",
+      "title": "You Might Need Somebody",
+      "genre": "Rock"
+    },
+    {
+      "file": "100. Faith No More - Midlife Crisis.mp3",
+      "artist": "Faith No More",
+      "title": "Midlife Crisis",
+      "genre": "Dance"
+    },
+    {
+      "file": "11. Barenaked Ladies - One Week.mp3",
+      "artist": "Barenaked Ladies",
+      "title": "One Week",
+      "genre": "Pop"
+    },
+    {
+      "file": "12. Seal - Kiss from a Rose.mp3",
+      "artist": "Seal",
+      "title": "Kiss from a Rose",
+      "genre": "Dance"
+    },
+    {
+      "file": "13. Robin S - Show Me Love.mp3",
+      "artist": "Robin S",
+      "title": "Show Me Love",
+      "genre": "Rock"
+    },
+    {
+      "file": "14. THE GOO GOO DOLLS - Iris.mp3",
+      "artist": "THE GOO GOO DOLLS",
+      "title": "Iris",
+      "genre": "Dance"
+    },
+    {
+      "file": "15. Red Hot Chili Peppers - Under the Bridge.mp3",
+      "artist": "Red Hot Chili Peppers",
+      "title": "Under the Bridge",
+      "genre": "Dance"
+    },
+    {
+      "file": "16. Deee-Lite - Groove Is in the Heart.mp3",
+      "artist": "Deee-Lite",
+      "title": "Groove Is in the Heart",
+      "genre": "R&B"
+    },
+    {
+      "file": "17. Eternal - I Wanna Be the Only One (feat. BeBe Winans).mp3",
+      "artist": "Eternal",
+      "title": "I Wanna Be the Only One (feat. BeBe Winans)",
+      "genre": "R&B"
+    },
+    {
+      "file": "18. Faith Evans - Love like This.mp3",
+      "artist": "Faith Evans",
+      "title": "Love like This",
+      "genre": "Pop"
+    },
+    {
+      "file": "19. Pet Shop Boys - Go West (2003 Remaster).mp3",
+      "artist": "Pet Shop Boys",
+      "title": "Go West (2003 Remaster)",
+      "genre": "R&B"
+    },
+    {
+      "file": "20. Blur - Girls and Boys.mp3",
+      "artist": "Blur",
+      "title": "Girls and Boys",
+      "genre": "Rock"
+    },
+    {
+      "file": "21. En Vogue - Don’t Let Go (Love).mp3",
+      "artist": "En Vogue",
+      "title": "Don’t Let Go (Love)",
+      "genre": "Pop"
+    },
+    {
+      "file": "22. The Corrs - What Can I Do (Tin Tin Out Remix).mp3",
+      "artist": "The Corrs",
+      "title": "What Can I Do (Tin Tin Out Remix)",
+      "genre": "Dance"
+    },
+    {
+      "file": "23. Tasmin Archer - Sleeping Satellite.mp3",
+      "artist": "Tasmin Archer",
+      "title": "Sleeping Satellite",
+      "genre": "Rock"
+    },
+    {
+      "file": "24. Third Eye Blind - Semi-charmed Life.mp3",
+      "artist": "Third Eye Blind",
+      "title": "Semi-charmed Life",
+      "genre": "Dance"
+    },
+    {
+      "file": "25. Faith Hill - This Kiss.mp3",
+      "artist": "Faith Hill",
+      "title": "This Kiss",
+      "genre": "R&B"
+    },
+    {
+      "file": "26. Peter Andre - Mysterious Girl (Radio Edit).mp3",
+      "artist": "Peter Andre",
+      "title": "Mysterious Girl (Radio Edit)",
+      "genre": "Rock"
+    },
+    {
+      "file": "27. All Saints - Never Ever (Radio Edit).mp3",
+      "artist": "All Saints",
+      "title": "Never Ever (Radio Edit)",
+      "genre": "R&B"
+    },
+    {
+      "file": "28. Simply Red - Something Got Me Started.mp3",
+      "artist": "Simply Red",
+      "title": "Something Got Me Started",
+      "genre": "Dance"
+    },
+    {
+      "file": "29. Tori Amos - Professional Widow (Armand's Star Trunk Funk Mix).mp3",
+      "artist": "Tori Amos",
+      "title": "Professional Widow (Armand's Star Trunk Funk Mix)",
+      "genre": "Pop"
+    },
+    {
+      "file": "30. En Vogue - My Lovin’ (You’re Never Gonna Get It).mp3",
+      "artist": "En Vogue",
+      "title": "My Lovin’ (You’re Never Gonna Get It)",
+      "genre": "Pop"
+    },
+    {
+      "file": "31. Alanis Morissette - Thank U (Remix).mp3",
+      "artist": "Alanis Morissette",
+      "title": "Thank U (Remix)",
+      "genre": "Rock"
+    },
+    {
+      "file": "32. Gina G - Just a Little Bit (Radio Edit).mp3",
+      "artist": "Gina G",
+      "title": "Just a Little Bit (Radio Edit)",
+      "genre": "R&B"
+    },
+    {
+      "file": "33. Jimmy Nail - Ain’t No Doubt.mp3",
+      "artist": "Jimmy Nail",
+      "title": "Ain’t No Doubt",
+      "genre": "Rock"
+    },
+    {
+      "file": "34. Grace - Not Over Yet.mp3",
+      "artist": "Grace",
+      "title": "Not Over Yet",
+      "genre": "Rock"
+    },
+    {
+      "file": "35. Cher - Walking in Memphis.mp3",
+      "artist": "Cher",
+      "title": "Walking in Memphis",
+      "genre": "R&B"
+    },
+    {
+      "file": "36. 98º - Only Wanna Be with You.mp3",
+      "artist": "98º",
+      "title": "Only Wanna Be with You",
+      "genre": "Rock"
+    },
+    {
+      "file": "37. They Might Be Giants - Birdhouse in Your Soul.mp3",
+      "artist": "They Might Be Giants",
+      "title": "Birdhouse in Your Soul",
+      "genre": "Rock"
+    },
+    {
+      "file": "38. Hard-Fi - Hard to Beat.mp3",
+      "artist": "Hard-Fi",
+      "title": "Hard to Beat",
+      "genre": "R&B"
+    },
+    {
+      "file": "39. Blur - Beetlebum (2012 Remaster).mp3",
+      "artist": "Blur",
+      "title": "Beetlebum (2012 Remaster)",
+      "genre": "R&B"
+    },
+    {
+      "file": "40. The Corrs - Runaway.mp3",
+      "artist": "The Corrs",
+      "title": "Runaway",
+      "genre": "Dance"
+    },
+    {
+      "file": "41. Adina Howard - Freak Like Me.mp3",
+      "artist": "Adina Howard",
+      "title": "Freak Like Me",
+      "genre": "Dance"
+    },
+    {
+      "file": "42. Catatonia - Mulder and Scully.mp3",
+      "artist": "Catatonia",
+      "title": "Mulder and Scully",
+      "genre": "Rock"
+    },
+    {
+      "file": "43. All-4-One - I Swear.mp3",
+      "artist": "All-4-One",
+      "title": "I Swear",
+      "genre": "R&B"
+    },
+    {
+      "file": "44. The Notorious B.I.G. - Hypnotize (2014 Remaster).mp3",
+      "artist": "The Notorious B.I.G.",
+      "title": "Hypnotize (2014 Remaster)",
+      "genre": "Dance"
+    },
+    {
+      "file": "45. Simply Red - Fairground.mp3",
+      "artist": "Simply Red",
+      "title": "Fairground",
+      "genre": "Dance"
+    },
+    {
+      "file": "46. Rod Stewart - Have I Told You Lately.mp3",
+      "artist": "Rod Stewart",
+      "title": "Have I Told You Lately",
+      "genre": "Rock"
+    },
+    {
+      "file": "47. Seal - Crazy.mp3",
+      "artist": "Seal",
+      "title": "Crazy",
+      "genre": "R&B"
+    },
+    {
+      "file": "48. Jennifer Love Hewitt - No Ordinary Love.mp3",
+      "artist": "Jennifer Love Hewitt",
+      "title": "No Ordinary Love",
+      "genre": "Pop"
+    },
+    {
+      "file": "49. Louise - Undivided Love.mp3",
+      "artist": "Louise",
+      "title": "Undivided Love",
+      "genre": "Pop"
+    },
+    {
+      "file": "50. Geri Halliwell - Bag It Up.mp3",
+      "artist": "Geri Halliwell",
+      "title": "Bag It Up",
+      "genre": "Rock"
+    },
+    {
+      "file": "51. Cher - Strong Enough.mp3",
+      "artist": "Cher",
+      "title": "Strong Enough",
+      "genre": "Dance"
+    },
+    {
+      "file": "52. The Corrs - Breathless.mp3",
+      "artist": "The Corrs",
+      "title": "Breathless",
+      "genre": "Rock"
+    },
+    {
+      "file": "53. Blur - Song 2 (2012 Remaster).mp3",
+      "artist": "Blur",
+      "title": "Song 2 (2012 Remaster)",
+      "genre": "Dance"
+    },
+    {
+      "file": "54. Andreas Johnson - Glorious.mp3",
+      "artist": "Andreas Johnson",
+      "title": "Glorious",
+      "genre": "Rock"
+    },
+    {
+      "file": "55. (Snow) - Informer.mp3",
+      "artist": "(Snow)",
+      "title": "Informer",
+      "genre": "Dance"
+    },
+    {
+      "file": "56. Green Day - Basket Case.mp3",
+      "artist": "Green Day",
+      "title": "Basket Case",
+      "genre": "R&B"
+    },
+    {
+      "file": "57. Stone Temple Pilots - Plush.mp3",
+      "artist": "Stone Temple Pilots",
+      "title": "Plush",
+      "genre": "R&B"
+    },
+    {
+      "file": "58. Color Me Badd - I Wanna Sex You Up.mp3",
+      "artist": "Color Me Badd",
+      "title": "I Wanna Sex You Up",
+      "genre": "Rock"
+    },
+    {
+      "file": "59. Spacehog - In the Meantime.mp3",
+      "artist": "Spacehog",
+      "title": "In the Meantime",
+      "genre": "R&B"
+    },
+    {
+      "file": "60. Duran Duran - Ordinary World.mp3",
+      "artist": "Duran Duran",
+      "title": "Ordinary World",
+      "genre": "Dance"
+    },
+    {
+      "file": "61. Hard-Fi - Cash Machine.mp3",
+      "artist": "Hard-Fi",
+      "title": "Cash Machine",
+      "genre": "Dance"
+    },
+    {
+      "file": "62. Matchbox Twenty - 3am.mp3",
+      "artist": "Matchbox Twenty",
+      "title": "3am",
+      "genre": "Pop"
+    },
+    {
+      "file": "63. Tina Turner - Goldeneye.mp3",
+      "artist": "Tina Turner",
+      "title": "Goldeneye",
+      "genre": "Dance"
+    },
+    {
+      "file": "64. Tori Amos - Cornflake Girl.mp3",
+      "artist": "Tori Amos",
+      "title": "Cornflake Girl",
+      "genre": "R&B"
+    },
+    {
+      "file": "65. Catatonia - Road Rage (Radio Edit).mp3",
+      "artist": "Catatonia",
+      "title": "Road Rage (Radio Edit)",
+      "genre": "Pop"
+    },
+    {
+      "file": "66. Katrina And The Waves - Love Shine a Light.mp3",
+      "artist": "Katrina And The Waves",
+      "title": "Love Shine a Light",
+      "genre": "Pop"
+    },
+    {
+      "file": "67. Eternal - Angel of Mine.mp3",
+      "artist": "Eternal",
+      "title": "Angel of Mine",
+      "genre": "Dance"
+    },
+    {
+      "file": "68. Paula Cole - I Don’t Want to Wait.mp3",
+      "artist": "Paula Cole",
+      "title": "I Don’t Want to Wait",
+      "genre": "R&B"
+    },
+    {
+      "file": "69. Chris Rea - Looking for the Summer.mp3",
+      "artist": "Chris Rea",
+      "title": "Looking for the Summer",
+      "genre": "Rock"
+    },
+    {
+      "file": "70. Terrorvision - Oblivion.mp3",
+      "artist": "Terrorvision",
+      "title": "Oblivion",
+      "genre": "Rock"
+    },
+    {
+      "file": "71. Matchbox Twenty - Push.mp3",
+      "artist": "Matchbox Twenty",
+      "title": "Push",
+      "genre": "Rock"
+    },
+    {
+      "file": "72. Julee Cruise - Falling.mp3",
+      "artist": "Julee Cruise",
+      "title": "Falling",
+      "genre": "Rock"
+    },
+    {
+      "file": "73. Faith No More - Easy.mp3",
+      "artist": "Faith No More",
+      "title": "Easy",
+      "genre": "Pop"
+    },
+    {
+      "file": "74. The Rembrandts - Just the Way It Is, Baby.mp3",
+      "artist": "The Rembrandts",
+      "title": "Just the Way It Is, Baby",
+      "genre": "Rock"
+    },
+    {
+      "file": "75. 112 - Cupid.mp3",
+      "artist": "112",
+      "title": "Cupid",
+      "genre": "Rock"
+    },
+    {
+      "file": "76. Titiyo - Do My Thing.mp3",
+      "artist": "Titiyo",
+      "title": "Do My Thing",
+      "genre": "Pop"
+    },
+    {
+      "file": "77. Eric Gadd - Do You Believe in Me (Radio Edit).mp3",
+      "artist": "Eric Gadd",
+      "title": "Do You Believe in Me (Radio Edit)",
+      "genre": "Pop"
+    },
+    {
+      "file": "78. Mase - Feel So Good.mp3",
+      "artist": "Mase",
+      "title": "Feel So Good",
+      "genre": "Pop"
+    },
+    {
+      "file": "79. Silk - Freak Me.mp3",
+      "artist": "Silk",
+      "title": "Freak Me",
+      "genre": "Rock"
+    },
+    {
+      "file": "80. Ol Dirty Bastard - Got Your Money (Rich Travali. Remix) [feat. Kelis].mp3",
+      "artist": "Ol Dirty Bastard",
+      "title": "Got Your Money (Rich Travali. Remix) [feat. Kelis]",
+      "genre": "Dance"
+    },
+    {
+      "file": "81. Jane’s Addiction - Been Caught Stealing.mp3",
+      "artist": "Jane’s Addiction",
+      "title": "Been Caught Stealing",
+      "genre": "Rock"
+    },
+    {
+      "file": "82. En Vogue - Free Your Mind.mp3",
+      "artist": "En Vogue",
+      "title": "Free Your Mind",
+      "genre": "Rock"
+    },
+    {
+      "file": "83. The Pretenders - I’ll Stand by You.mp3",
+      "artist": "The Pretenders",
+      "title": "I’ll Stand by You",
+      "genre": "R&B"
+    },
+    {
+      "file": "84. Green Day - Good Riddance (Time of Your Life).mp3",
+      "artist": "Green Day",
+      "title": "Good Riddance (Time of Your Life)",
+      "genre": "R&B"
+    },
+    {
+      "file": "85. All Saints - Lady Marmalade.mp3",
+      "artist": "All Saints",
+      "title": "Lady Marmalade",
+      "genre": "Pop"
+    },
+    {
+      "file": "86. Shampoo     - Trouble.mp3",
+      "artist": "Shampoo",
+      "title": "Trouble",
+      "genre": "Dance"
+    },
+    {
+      "file": "87. Geri Halliwell - Mi Chico Latino.mp3",
+      "artist": "Geri Halliwell",
+      "title": "Mi Chico Latino",
+      "genre": "Rock"
+    },
+    {
+      "file": "88. Tamia - So into You.mp3",
+      "artist": "Tamia",
+      "title": "So into You",
+      "genre": "Pop"
+    },
+    {
+      "file": "89. Ultra Naté - How Long.mp3",
+      "artist": "Ultra Naté",
+      "title": "How Long",
+      "genre": "Rock"
+    },
+    {
+      "file": "90. Better Than Ezra - Desperately Wanting.mp3",
+      "artist": "Better Than Ezra",
+      "title": "Desperately Wanting",
+      "genre": "Dance"
+    },
+    {
+      "file": "91. Steve Cole - It's Gonna Be Alright.mp3",
+      "artist": "Steve Cole",
+      "title": "It's Gonna Be Alright",
+      "genre": "Dance"
+    },
+    {
+      "file": "92. Louise - Naked.mp3",
+      "artist": "Louise",
+      "title": "Naked",
+      "genre": "Dance"
+    },
+    {
+      "file": "93. Eternal - Just a Step from Heaven.mp3",
+      "artist": "Eternal",
+      "title": "Just a Step from Heaven",
+      "genre": "Pop"
+    },
+    {
+      "file": "94. Faith Hill - Breathe.mp3",
+      "artist": "Faith Hill",
+      "title": "Breathe",
+      "genre": "Dance"
+    },
+    {
+      "file": "95. Geri Halliwell - Look at Me.mp3",
+      "artist": "Geri Halliwell",
+      "title": "Look at Me",
+      "genre": "R&B"
+    },
+    {
+      "file": "96. Hard-Fi - Living for the Weekend.mp3",
+      "artist": "Hard-Fi",
+      "title": "Living for the Weekend",
+      "genre": "R&B"
+    },
+    {
+      "file": "97. Terrorvision - Tequila.mp3",
+      "artist": "Terrorvision",
+      "title": "Tequila",
+      "genre": "Rock"
+    },
+    {
+      "file": "98. Idlewild - When I Argue I See Shapes.mp3",
+      "artist": "Idlewild",
+      "title": "When I Argue I See Shapes",
+      "genre": "Rock"
+    },
+    {
+      "file": "99. Catatonia - International Velvet.mp3",
+      "artist": "Catatonia",
+      "title": "International Velvet",
+      "genre": "Dance"
+    }
+  ]
+}

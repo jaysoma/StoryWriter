@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>StoryWriter — audio into fiction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  :root{
+    --ink:#0a0d12; --panel:#0e1219; --panel2:#11161f;
+    --amber:#f0b54a; --amber-dim:#b9863a; --dim:#3a4150;
+    --text:#c7cdd6; --muted:#6b7480; --line:rgba(255,255,255,.07);
+    --line-amber:rgba(240,181,74,.18);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--ink); color:var(--text);
+    font-family:'Space Grotesk',system-ui,sans-serif; line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px; margin:0 auto; padding:40px 28px 72px}
+  h1{
+    font-weight:700; font-size:clamp(34px,6vw,52px); line-height:1.02;
+    margin:0 0 28px; letter-spacing:-.02em;
+  }
+  h1 em{font-style:normal; color:var(--amber)}
+
+  /* scope / pattern graph */
+  .scope{
+    margin:16px 0 0; border:1px solid var(--line-amber); border-radius:6px;
+    background:linear-gradient(180deg,#0c1017,#0a0d12); overflow:hidden; position:relative;
+  }
+  .scope svg{display:block; width:100%; height:150px}
+  .scope .grid line{stroke:rgba(240,181,74,.07)}
+  .trace{fill:none; stroke-width:1.6}
+  .tV{stroke:var(--amber)} .tA{stroke:rgba(240,181,74,.6)} .tD{stroke:rgba(240,181,74,.32)}
+  .drift{animation:drift 14s linear infinite}
+  .running .drift{animation-duration:4s}
+  @keyframes drift{from{transform:translateX(0)} to{transform:translateX(-50%)}}
+  .scope .axis-label{font-family:'IBM Plex Mono',monospace; font-size:9px; fill:var(--amber-dim)}
+  .pline{fill:none; stroke-width:1.8; stroke-linejoin:round; stroke-linecap:round}
+  .pV{stroke:var(--amber)} .pA{stroke:rgba(240,181,74,.62)} .pD{stroke:rgba(240,181,74,.34)}
+  .phead{fill:var(--amber)}
+  .scope .caption{font-family:'IBM Plex Mono',monospace; font-size:9px; fill:var(--amber-dim); letter-spacing:.12em}
+  .scope .legend{display:flex; flex-wrap:wrap; gap:6px 14px; padding:9px 12px 11px;
+    border-top:1px solid var(--line-amber); background:rgba(10,13,18,.6)}
+  .scope .leg{font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.06em;
+    color:var(--muted); display:inline-flex; align-items:center; gap:6px}
+  .scope .sw{width:16px; height:2.5px; border-radius:2px; display:inline-block; flex-shrink:0}
+
+  /* panels + fields */
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:22px;
+    display:flex; flex-direction:column}
+  .setup{display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:stretch}
+  @media(max-width:680px){.setup{grid-template-columns:1fr}}
+  .panel-title{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--amber-dim); margin-bottom:14px}
+  .subpanel{margin-top:18px; padding-top:16px; border-top:1px solid var(--line);
+    flex:1; display:flex; flex-direction:column; min-height:0}
+  .subpanel .panel-title{margin-bottom:10px}
+  .subpanel textarea{flex:1; min-height:140px; resize:none; overflow-y:auto}
+  .drop{
+    border:1.5px dashed var(--line-amber); border-radius:6px; padding:26px;
+    text-align:center; cursor:pointer; transition:border-color .15s,background .15s;
+    background:var(--panel2);
+  }
+  .drop.over{border-color:var(--amber); background:#141a24}
+  .drop .big{font-size:15px; color:var(--text)}
+  .drop .small{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted); margin-top:6px}
+  .file{
+    font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--amber);
+    display:flex; gap:10px; align-items:center; justify-content:center;
+  }
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  @media(max-width:560px){.grid2{grid-template-columns:1fr}}
+  label{display:block; font-family:'IBM Plex Mono',monospace; font-size:11px;
+    letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:7px}
+  input,textarea{
+    width:100%; background:var(--ink); color:var(--text); border:1px solid var(--line);
+    border-radius:4px; padding:10px 12px; font-family:'IBM Plex Mono',monospace; font-size:13px;
+  }
+  input:focus,textarea:focus{outline:2px solid var(--amber); outline-offset:1px; border-color:transparent}
+  textarea{resize:vertical; min-height:110px; line-height:1.55}
+  .hint{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted); margin-top:6px}
+  .go{
+    margin-top:18px; width:100%; padding:14px; border:none; border-radius:4px; cursor:pointer;
+    background:var(--amber); color:#0a0d12; font-family:'Space Grotesk',sans-serif;
+    font-weight:700; font-size:15px; letter-spacing:.01em; transition:filter .15s,opacity .15s;
+  }
+  .go:hover{filter:brightness(1.08)} .go:disabled{opacity:.4; cursor:not-allowed}
+  .go:focus-visible{outline:2px solid #fff; outline-offset:2px}
+  /* compact setup inputs → leave more room for the prompt */
+  .setup .grid2{gap:12px}
+  .setup .grid2 label{margin-bottom:4px}
+  .setup .grid2 input,.setup .grid2 select{padding:6px 9px}
+  .player{width:100%; height:34px; margin-top:14px; display:block; filter:saturate(.55)}
+
+  /* results: status timeline (left) | story (right) */
+  .split{display:grid; grid-template-columns:230px 1fr; gap:18px; margin-top:18px}
+  @media(max-width:680px){.split{grid-template-columns:1fr}}
+  .pane{background:var(--panel); border:1px solid var(--line); border-radius:6px; overflow:hidden; display:flex; flex-direction:column}
+  .pane-header{padding:11px 16px; border-bottom:1px solid var(--line); font-family:'IBM Plex Mono',monospace;
+    font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--amber-dim); display:flex; align-items:center; gap:8px}
+  .pane-header .hdot{width:6px; height:6px; border-radius:50%; background:var(--amber); animation:dotPulse 2s ease-in-out infinite}
+  .pane-header .hdot.idle{background:var(--muted); animation:none}
+  .pane-body{flex:1; overflow-y:auto; padding:18px 16px; max-height:560px; scroll-behavior:smooth}
+
+  /* timeline */
+  .tl-row{display:flex; position:relative}
+  .tl-left{display:flex; flex-direction:column; align-items:center; width:24px; flex-shrink:0}
+  .tl-line{width:1px; flex:1; background:var(--line); min-height:26px; margin:3px 0}
+  .tl-line.done{background:var(--line-amber)}
+  .tl-body{flex:1; padding:0 0 6px 12px; min-width:0}
+  .tl-label{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--text); letter-spacing:.02em}
+  .tl-row.pending .tl-label{color:var(--muted)}
+  .tl-row.active .tl-label{color:var(--amber)}
+  .tl-row.error  .tl-label{color:#e88}
+  .tl-sub{font-size:11.5px; color:var(--muted); margin-top:3px; line-height:1.45}
+  .tl-dot{width:13px; height:13px; border-radius:50%; flex-shrink:0; margin-top:2px; position:relative}
+  .tl-dot.pending{width:9px; height:9px; margin-top:4px; background:transparent; border:1.5px solid var(--dim)}
+  .tl-dot.done{background:var(--amber); box-shadow:0 0 0 3px rgba(240,181,74,.12)}
+  .tl-dot.error{background:#e05a5a; box-shadow:0 0 6px rgba(224,90,90,.5)}
+  .tl-dot.active{background:transparent; width:16px; height:16px; margin-top:1px; animation:spin .85s linear infinite}
+  .tl-dot.active span{position:absolute; left:50%; top:50%; width:2px; border-radius:1px; background:var(--amber); transform-origin:50% 100%}
+  .tl-dot.active span:nth-child(1){height:4px;margin-left:-1px;margin-top:-4px;transform:rotate(0deg)   translateY(-4px);opacity:1}
+  .tl-dot.active span:nth-child(2){height:4px;margin-left:-1px;margin-top:-4px;transform:rotate(45deg)  translateY(-4px);opacity:.85}
+  .tl-dot.active span:nth-child(3){height:4px;margin-left:-1px;margin-top:-4px;transform:rotate(90deg)  translateY(-4px);opacity:.7}
+  .tl-dot.active span:nth-child(4){height:4px;margin-left:-1px;margin-top:-4px;transform:rotate(135deg) translateY(-4px);opacity:.55}
+  .tl-dot.active span:nth-child(5){height:4px;margin-left:-1px;margin-top:-4px;transform:rotate(180deg) translateY(-4px);opacity:.4}
+  .tl-dot.active span:nth-child(6){height:4px;margin-left:-1px;margin-top:-4px;transform:rotate(225deg) translateY(-4px);opacity:.3}
+  .tl-dot.active span:nth-child(7){height:4px;margin-left:-1px;margin-top:-4px;transform:rotate(270deg) translateY(-4px);opacity:.2}
+  .tl-dot.active span:nth-child(8){height:4px;margin-left:-1px;margin-top:-4px;transform:rotate(315deg) translateY(-4px);opacity:.1}
+
+  /* lexicon dots — one per Mongo word lookup */
+  .lex{margin-top:14px; padding-top:14px; border-top:1px solid var(--line)}
+  .lex-title{font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--amber-dim); margin-bottom:9px}
+  .lex-list{display:flex; flex-direction:column; gap:4px}
+  .lex-word{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--text);
+    letter-spacing:.02em; display:flex; align-items:baseline; animation:popIn .22s ease-out}
+  .lex-word .arrow{color:var(--amber-dim); margin-right:7px; flex-shrink:0}
+
+  /* story output */
+  .reasoning{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted);
+    line-height:1.6; white-space:pre-wrap; border-left:2px solid var(--line-amber);
+    padding:2px 0 2px 12px; margin-bottom:18px}
+  /* "model's reading" box — lives where the prompt panel used to, streams the reasoning */
+  .reasonbox{max-height:230px; overflow-y:auto; white-space:pre-wrap; scroll-behavior:smooth;
+    font-family:'IBM Plex Mono',monospace; font-size:12.5px; line-height:1.55; color:var(--amber-dim);
+    border-left:2px solid var(--line-amber); padding:2px 0 2px 12px}
+  .reason-ph{color:var(--dim); font-style:italic; border:none}
+  /* persistent animated activity line — keeps the pane alive during silent model prefill */
+  .reason-live{display:flex; align-items:center; gap:9px; margin-top:10px; color:var(--amber);
+    font-family:'IBM Plex Mono',monospace; font-size:12px}
+  .reason-live .reason-clock{margin-left:auto; color:var(--amber-dim); font-variant-numeric:tabular-nums}
+  .reason-hint{margin-top:6px; color:var(--amber-dim); font-family:'IBM Plex Mono',monospace;
+    font-size:12px; font-style:italic; animation:fadeIn .5s ease-out}
+  .out-empty{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted); line-height:1.6}
+  .out p{font-size:16px; line-height:1.75; margin:0 0 1em; color:#e6bd6a; font-weight:400; letter-spacing:.005em}
+  .out p:last-child{margin-bottom:0}
+  .cursor{display:inline-block; width:7px; height:1.05em; background:var(--amber);
+    margin-left:2px; vertical-align:text-bottom; animation:blink .8s step-end infinite}
+  .out-err{color:#e88; white-space:pre-wrap; font-family:'IBM Plex Mono',monospace; font-size:12px;
+    border:1px solid rgba(238,136,136,.3); border-radius:4px; padding:12px; background:rgba(238,136,136,.05); line-height:1.5}
+
+  /* lexicon pins — one charged word per dot, sitting in the story's left gutter,
+     aligned to the vertical point in the prose where that word lands. The dot is
+     rendered + behaves like the timeline 'done' process dots (amber + glow + popIn). */
+  .pane-body.out{position:relative; padding-left:128px}
+  .lex-gutter{position:absolute; left:0; top:0; width:116px; pointer-events:none}
+  .lex-pin{position:absolute; left:0; width:100%; padding-left:8px; transform:translateY(-50%);
+    display:flex; align-items:center; gap:8px}
+  .lex-pin .pin-dot{width:13px; height:13px; border-radius:50%; flex-shrink:0;
+    background:var(--amber); box-shadow:0 0 0 3px rgba(240,181,74,.12); animation:popIn .25s ease-out}
+  .lex-pin .pin-word{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--amber-dim);
+    letter-spacing:.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; animation:fadeIn .35s ease-out}
+  .lex-mark{border-bottom:1px solid var(--line-amber)}
+  .lex-sub{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted); line-height:1.5}
+  @media(max-width:680px){ .pane-body.out{padding-left:16px} .lex-gutter{display:none} }
+
+  /* RESULTS — the credited phrase list (full width; no status pane) */
+  .results{margin-top:18px}
+  .pane-body.lines{display:flex; flex-direction:column; padding:6px 20px 18px; max-height:620px}
+  .line-row{display:flex; gap:15px; align-items:flex-start; padding:15px 0;
+    border-bottom:1px solid var(--line); animation:fadeIn .45s ease-out}
+  .line-row:last-child{border-bottom:none}
+  .line-dot{width:11px; height:11px; border-radius:50%; flex-shrink:0; margin-top:9px;
+    background:var(--amber); box-shadow:0 0 0 3px rgba(240,181,74,.12)}
+  .line-body{flex:1; min-width:0}
+  .line-head{display:flex; flex-wrap:wrap; gap:5px 12px; align-items:baseline; margin-bottom:7px;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.07em; text-transform:uppercase}
+  .line-emo{color:var(--amber-dim)}
+  .line-cite{color:var(--muted)}
+  .line-text{font-size:21px; line-height:1.5; color:#ffce6a; font-weight:500; letter-spacing:.005em}
+
+  /* STORY + SEEDS — narrow seed pane (left) | the written story (right) */
+  .story-split{display:grid; grid-template-columns:250px 1fr; gap:18px; margin-top:18px; align-items:start}
+  @media(max-width:680px){.story-split{grid-template-columns:1fr}}
+  .seeds-body{padding:8px 14px 14px}
+  .seed-line{position:relative; display:flex; gap:11px; align-items:flex-start; padding:8px 0;
+    animation:fadeIn .4s ease-out}
+  /* thin vertical connector threading the seed dots into a timeline */
+  .seed-line::before{content:""; position:absolute; left:3px; top:0; bottom:0; width:1px;
+    background:var(--line-amber); opacity:.5; transform-origin:top; animation:growDown .3s ease-out both}
+  .seed-line:first-child::before{top:15px}
+  .seed-line:last-child::before{bottom:auto; height:15px}
+  .seed-line:only-child::before{display:none}
+  .seed-dot{position:relative; width:7px; height:7px; border-radius:50%; flex-shrink:0; margin-top:7px;
+    background:var(--amber); box-shadow:0 0 0 3px rgba(240,181,74,.12)}
+  .seed-text{font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.5;
+    color:var(--amber-dim); letter-spacing:.01em; word-break:break-word}
+  .seed-caret{display:inline-block; width:5px; height:1em; background:var(--amber); margin-left:1px;
+    vertical-align:text-bottom; animation:blink .8s step-end infinite}
+  /* the emotion the story is currently rendering, lit up in the left arc */
+  .seed-line.active .seed-text{color:#ffce6a; transition:color .25s}
+  .seed-line.active .seed-dot{background:#ffce6a; box-shadow:0 0 0 4px rgba(240,181,74,.30); transition:box-shadow .25s}
+  /* animated "model is writing" indicator for the generating phase */
+  .typing-dots{display:inline-flex; gap:5px; margin-left:9px; vertical-align:middle}
+  .typing-dots span{width:5px; height:5px; border-radius:50%; background:var(--amber);
+    animation:typingdot 1.2s infinite ease-in-out}
+  .typing-dots span:nth-child(2){animation-delay:.18s}
+  .typing-dots span:nth-child(3){animation-delay:.36s}
+
+  /* live status bar — shows the current phase message as the pipeline streams */
+  .statusbar{display:flex; align-items:center; gap:10px; margin-top:18px; padding:11px 15px;
+    background:var(--panel); border:1px solid var(--line-amber); border-radius:6px;
+    font-family:'IBM Plex Mono',monospace; font-size:12.5px; letter-spacing:.03em; color:var(--amber)}
+  .statusbar .hdot{width:7px; height:7px; border-radius:50%; flex-shrink:0; background:var(--amber);
+    animation:dotPulse 1.6s ease-in-out infinite}
+  .statusbar .hdot.idle{background:var(--muted); animation:none}
+  .statusbar + .story-split{margin-top:12px}
+  .statusbar .elapsed{margin-left:auto; color:var(--amber-dim); font-variant-numeric:tabular-nums; font-size:12px}
+
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes blink{0%,100%{opacity:1} 50%{opacity:0}}
+  @keyframes dotPulse{0%,100%{opacity:1} 50%{opacity:.3}}
+  @keyframes popIn{from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1}}
+  @keyframes fadeIn{from{opacity:0} to{opacity:1}}
+  @keyframes growDown{from{transform:scaleY(0)} to{transform:scaleY(1)}}
+  @keyframes typingdot{0%,80%,100%{opacity:.25; transform:translateY(0)} 40%{opacity:1; transform:translateY(-3px)}}
+  @media(prefers-reduced-motion:reduce){.drift{animation:none} .tl-dot.active{animation:none} .cursor{animation:none}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useRef,useCallback,useEffect} = React;
+
+// Mount path: "" standalone, "/storywriter" behind the gateway. Same file, both places.
+const BASE = location.pathname.replace(/\/(index\.html)?$/, "");
+
+function trace(amp,freq,phase,y){
+  const W=1600,N=160; let d=`M0 ${y}`;
+  for(let i=0;i<=N;i++){const x=i/N*W; const v=y+Math.sin(i/N*Math.PI*2*freq+phase)*amp; d+=` L${x.toFixed(1)} ${v.toFixed(1)}`;}
+  return d;
+}
+const SC_W=800, SC_H=150, SC_PX=26, SC_PY=18;
+const xOf=(i,n)=>SC_PX + (n<2?0:(i/(n-1)))*(SC_W-2*SC_PX);
+const yOf=v=>SC_PY + (1-(Math.max(1,Math.min(9,v))-1)/8)*(SC_H-2*SC_PY);
+function polyline(arr,count){
+  let d="";
+  for(let i=0;i<count && i<arr.length;i++){ d += (i===0?"M":"L")+xOf(i,arr.length).toFixed(1)+" "+yOf(arr[i]).toFixed(1)+" "; }
+  return d.trim();
+}
+// Smooth (curved) path through all points using a Catmull-Rom spline converted to
+// cubic béziers — no angular corners. The full curve is emitted once; the
+// left-to-right "drawing" is done with stroke-dashoffset (see Scope), so the line
+// reveals as a pen-stroke rather than by snapping in straight segments.
+function smoothPath(arr){
+  const n=arr.length;
+  if(n<2) return n===1?`M${xOf(0,n).toFixed(1)} ${yOf(arr[0]).toFixed(1)}`:"";
+  const P=[]; for(let i=0;i<n;i++) P.push([xOf(i,n), yOf(arr[i])]);
+  let d=`M${P[0][0].toFixed(1)} ${P[0][1].toFixed(1)}`;
+  for(let i=0;i<n-1;i++){
+    const p0=P[i-1]||P[i], p1=P[i], p2=P[i+1], p3=P[i+2]||p2;
+    const c1x=p1[0]+(p2[0]-p0[0])/6, c1y=p1[1]+(p2[1]-p0[1])/6;
+    const c2x=p2[0]-(p3[0]-p1[0])/6, c2y=p2[1]-(p3[1]-p1[1])/6;
+    d+=` C${c1x.toFixed(1)} ${c1y.toFixed(1)} ${c2x.toFixed(1)} ${c2y.toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
+  }
+  return d;
+}
+// The seven core arcs the graph draws — each its own coloured trace, with a
+// legend below. Keys match server.py's audio_series() output.
+const SERIES=[
+  {key:"energy",   label:"energy",     color:"#f0b54a"},  // loudness
+  {key:"bright",   label:"brightness", color:"#76c7ff"},  // spectral centroid
+  {key:"onset",    label:"onset",      color:"#ff9d6b"},  // overall attack rate
+  {key:"perc",     label:"percussive", color:"#c79bff"},  // percussive drive
+  {key:"harm",     label:"harmonic",   color:"#6fe0a6"},  // harmonic movement
+  {key:"melody",   label:"melody",     color:"#ffd470"},  // lead-voice pitch
+  {key:"contrast", label:"contrast",   color:"#9fb0c0"},  // spectral clarity
+];
+
+// The pattern graph: an empty frame until analysis lands, then it draws all seven
+// real audio features progressively, left to right.
+function Scope({running, audio}){
+  const [draw,setDraw]=useState(0);
+  useEffect(()=>{
+    if(!audio){ setDraw(0); return; }
+    let raf, t0=null; const DUR=2800;
+    const step=(t)=>{ if(t0===null) t0=t; const p=Math.min(1,(t-t0)/DUR);
+      setDraw(p); if(p<1) raf=requestAnimationFrame(step); };
+    raf=requestAnimationFrame(step);
+    return ()=>cancelAnimationFrame(raf);
+  },[audio]);
+
+  const lengths = audio ? SERIES.map(s=>(audio[s.key]||[]).length) : [];
+  const n = lengths.length ? Math.max(0,...lengths) : 0;
+
+  const Frame = ({children})=>(
+    <div className="scope">
+      <svg viewBox={`0 0 ${SC_W} ${SC_H}`} preserveAspectRatio="none" aria-hidden="true">
+        <g className="grid">
+          {[0,.25,.5,.75,1].map(f=>{const y=SC_PY+f*(SC_H-2*SC_PY);
+            return <line key={f} x1={SC_PX} y1={y} x2={SC_W-SC_PX} y2={y}/>;})}
+        </g>
+        {children}
+      </svg>
+      <div className="legend">
+        {SERIES.map(s=>(
+          <span className="leg" key={s.key}>
+            <span className="sw" style={{background:s.color}}></span>{s.label}
+          </span>))}
+      </div>
+    </div>
+  );
+
+  if(audio && n>=2){
+    const lead=audio.energy && audio.energy.length ? audio.energy : (SERIES.map(s=>audio[s.key]).find(a=>a&&a.length)||[]);
+    const li=Math.max(0, Math.round(draw*(lead.length-1)));
+    const hx=xOf(li,lead.length), hy=yOf(lead[li]);
+    return (
+      <Frame>
+        {/* draw back-to-front so energy sits on top; each is a smooth curve revealed
+            left-to-right by animating stroke-dashoffset from 1 (hidden) to 0 (drawn). */}
+        {[...SERIES].reverse().map(s=>{
+          const arr=audio[s.key]; if(!arr||arr.length<2) return null;
+          return <path key={s.key} className="pline" style={{stroke:s.color}}
+            d={smoothPath(arr)} pathLength="1"
+            strokeDasharray="1" strokeDashoffset={(1-draw).toFixed(4)}/>;
+        })}
+        {lead.length>0 && <circle className="phead" cx={hx} cy={hy} r="2.6"/>}
+      </Frame>
+    );
+  }
+  // No audio yet → an empty graph (just the frame + legend); it fills in
+  // left-to-right once the analysis lands.
+  return <Frame/>;
+}
+
+// Map a valence/arousal point (1-9) to a couple of human emotion words for the header.
+function vadWords(v, a, d){
+  const lo = 4.2, hi = 5.8;
+  const vb = v < lo ? 0 : v > hi ? 2 : 1;   // negative / neutral / positive
+  const ab = a < lo ? 0 : a > hi ? 2 : 1;   // calm / mid / intense
+  const grid = [
+    ["weary, melancholy",     "uneasy, somber",     "anxious, afraid"],
+    ["subdued, contemplative","pensive, watchful",  "restless, alert"],
+    ["calm, content",         "warm, hopeful",      "elated, exhilarated"],
+  ];
+  return grid[vb][ab];
+}
+
+// Scrub the model's scaffolding (markdown headings, numbered bold labels, bold markers)
+// and any echoed emotion labels out of the displayed prose.
+function stripLabels(text, lex){
+  if(!text) return "";
+  let out=text;
+  out=out.replace(/^\s{0,3}#{1,6}.*$/gm,"");                 // ### External Event:
+  out=out.replace(/^\s*\d+\.\s*\*\*.*$/gm,"");               // 5. **Interruption**: ...
+  out=out.replace(/^\s*\*\*[^*\n]+\*\*\s*:?\s*$/gm,"");       // **Label**: on its own line
+  out=out.replace(/\*\*/g,"");                               // stray bold markers
+  const labels=[...new Set((lex||[]).map(d=>d&&d.w).filter(Boolean))].sort((a,b)=>b.length-a.length);
+  for(const lab of labels){
+    out=out.replace(new RegExp(lab.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"gi"),"");
+  }
+  return out.replace(/[ \t]{2,}/g," ").replace(/\n{3,}/g,"\n\n").replace(/^\s+/,"");
+}
+
+// One seed line: its connector draws in (CSS), then it types its phrase out a character
+// at a time, then it calls onDone so the next seed can begin.
+function SeedLine({d,onDone,active}){
+  const text = (d.w || "").split(",")[0].trim();   // a single emotion word, not the pair
+  const [n,setN] = useState(0);
+  useEffect(()=>{
+    setN(0);
+    let i=0, id;
+    const tick=()=>{
+      i+=1; setN(i);
+      if(i<text.length){ id=setTimeout(tick,18); }
+      else if(onDone){ id=setTimeout(onDone,150); }   // brief pause, then reveal the next
+    };
+    id=setTimeout(tick,300);                            // let the connector finish drawing first
+    return ()=>clearTimeout(id);
+  },[text]);
+  return (
+    <div className={"seed-line"+(active?" active":"")} title={`<${vadWords(d.v,d.a,d.d)}>  ·  V${d.v} A${d.a} D${d.d}`}>
+      <span className="seed-dot"></span>
+      <span className="seed-text">{text.slice(0,n)}{n<text.length && <span className="seed-caret"></span>}</span>
+    </div>
+  );
+}
+
+// Reveals the seeds strictly one at a time, top to bottom — the next appears only once
+// the current one has finished typing.
+function SeedsList({lex, activeIdx}){
+  const [shown,setShown]=useState(0);
+  useEffect(()=>{ if(lex.length===0 && shown!==0) setShown(0); },[lex.length,shown]);  // new run → restart
+  useEffect(()=>{
+    if(shown===0 && lex.length>0){ const t=setTimeout(()=>setShown(1),100); return ()=>clearTimeout(t); }
+  },[shown,lex.length]);
+  const revealNext=useCallback(()=>{ setShown(s=> s<lex.length ? s+1 : s); },[lex.length]);
+  return lex.slice(0,shown).map((d,i)=>(
+    <SeedLine key={i} d={d} onDone={i===shown-1 ? revealNext : undefined} active={i===activeIdx}/>
+  ));
+}
+
+// Rotating "still working" lines to keep the Model pane alive during silent model prefill,
+// when the backend produces nothing for the user to see.
+const HINTS={
+  extracting:["Decoding the audio…","Separating the layers…","Tracing the feature curves…"],
+  generating:["Reading the opening pages for voice…","Composing the opening lines…",
+    "Shaping the scene and the character…","Letting the emotional arc unfold…",
+    "Holding the Black Mirror mood…","Still writing — this runs on your CPU…"],
+  queued:["Queued…"]
+};
+function App(){
+  const [file,setFile]=useState(null);
+  const [over,setOver]=useState(false);
+  const [words,setWords]=useState(150);
+  const [model,setModel]=useState("qwen2.5:7b");// editable below; must match an `ollama list` tag. Tool-capable models only (qwen2.5, llama3.1, llama3.2). 7b = best prose, 3b = ~3x faster.
+  const reasonBoxRef=useRef(null);              // the "model's reading" scroll box
+  const [state,setState]=useState("idle");      // idle|queued|extracting|generating|done|error
+  const [msg,setMsg]=useState("");
+  const [elapsed,setElapsed]=useState(0);       // seconds since the run started — ticks even when the backend is silent (model prefill)
+  const [hintIdx,setHintIdx]=useState(0);       // rotating "still working" line in the Model pane
+  const [story,setStory]=useState("");
+  const [shown,setShown]=useState(0);
+  const [reasoning,setReasoning]=useState("");
+  const [lex,setLex]=useState([]);              // [{w,v,a,d}] — one per Mongo lookup
+  const [audio,setAudio]=useState(null);
+  const [err,setErr]=useState("");
+  const [failedStage,setFailedStage]=useState(null);
+  const [audioUrl,setAudioUrl]=useState(null);  // object URL of the loaded track, for playback
+  const inputRef=useRef();
+  const cleanedStory = stripLabels(story, lex);   // prose with the emotion labels scrubbed out
+  const storyRef=useRef(""); storyRef.current=cleanedStory;
+  const storyBodyRef=useRef(null);              // the scrolling story pane-body
+  const proseRef=useRef(null);                  // the prose block, for vertical distribution
+  const shownRef=useRef(0);                     // typewriter cursor position
+  const [library,setLibrary]=useState({genres:[],songs:[]});  // genre-tabbed song catalog
+  const [genre,setGenre]=useState(null);        // active genre tab
+  const [song,setSong]=useState(null);          // selected catalog song {file,artist,title,genre,ready}
+  useEffect(()=>{                               // load the song library once
+    fetch(BASE+"/library").then(r=>r.json()).then(d=>{
+      setLibrary({genres:d.genres||[],songs:d.songs||[]});
+      if(d.genres&&d.genres.length) setGenre(g=>g||d.genres[0]);
+    }).catch(()=>{});
+  },[]);
+  const chooseSong=(s)=>{                        // pick a catalog song; play it, reset the view
+    setSong(s);
+    setAudioUrl(BASE+"/song?file="+encodeURIComponent(s.file));
+    setState("idle"); setErr(""); setStory(""); setShown(0); shownRef.current=0;
+    setReasoning(""); setLex([]); setAudio(null); setFailedStage(null);
+  };
+
+  // typewriter: reveal ONE character at a time with a slight pause, lingering a touch
+  // longer on punctuation and line breaks for a deliberate, hand-typed cadence.
+  useEffect(()=>{
+    let id, dead=false;
+    const tick=()=>{
+      if(dead) return;
+      const target=storyRef.current.length;
+      let s=shownRef.current;
+      if(s>=target){ id=setTimeout(tick,60); return; }   // caught up — idle, then re-check
+      const ch=storyRef.current[s];
+      s+=1; shownRef.current=s; setShown(s);
+      let delay=9;
+      if(ch==="\n") delay=30;
+      else if(".!?".indexOf(ch)>=0) delay=75;
+      else if(",;:—".indexOf(ch)>=0) delay=38;
+      id=setTimeout(tick, delay);
+    };
+    id=setTimeout(tick,9);
+    return ()=>{ dead=true; clearTimeout(id); };
+  },[]);
+
+  // Follow the typing — keep the current line of the story in view as it generates.
+  useEffect(()=>{
+    const b=storyBodyRef.current; if(b) b.scrollTop=b.scrollHeight;
+  },[shown]);
+
+  // Keep the model's-reading box scrolled to the latest as the reasoning streams in.
+  useEffect(()=>{
+    const b=reasonBoxRef.current; if(b) b.scrollTop=b.scrollHeight;
+  },[reasoning]);
+
+  // A client-side elapsed clock so the run always looks alive, even during the minutes the
+  // model spends reading its prompt (when the backend emits nothing at all).
+  useEffect(()=>{
+    if(!running){ setElapsed(0); return; }
+    const start=Date.now();
+    const id=setInterval(()=>setElapsed(Math.floor((Date.now()-start)/1000)),1000);
+    return ()=>clearInterval(id);
+  },[running]);
+
+
+  // Free the previous object URL when the track changes or the app unmounts.
+  useEffect(()=>{ return ()=>{ if(audioUrl) URL.revokeObjectURL(audioUrl); }; },[audioUrl]);
+
+  const chooseFile=(f)=>{ if(!f) return; setFile(f); setAudioUrl(URL.createObjectURL(f)); setState("idle"); setErr(""); };
+  const onDrop=useCallback(e=>{e.preventDefault();setOver(false);
+    const f=e.dataTransfer.files[0]; if(f) chooseFile(f);},[]);
+  const pick=e=>{ chooseFile(e.target.files[0]); };
+  const running = ["queued","extracting","generating"].includes(state);
+
+  async function analyze(){
+    if(!song) return;
+    setErr(""); setStory(""); setShown(0); shownRef.current=0; setReasoning(""); setLex([]); setAudio(null);
+    setFailedStage(null);
+    try{
+      // Instant path: if this song has a pre-baked run, replay it with no model wait.
+      const rj=await (await fetch(BASE+"/result?file="+encodeURIComponent(song.file))).json();
+      if(rj && rj.found){
+        if(rj.audio) setAudio(rj.audio);
+        if(Array.isArray(rj.words)) setLex(rj.words);
+        setReasoning(rj.reasoning||"");
+        setMsg("Loaded from library."); setState("done");
+        setShown(0); shownRef.current=0; setStory(rj.story||"");
+        return;
+      }
+      // Live path: generate now; the server persists it so it's instant next time.
+      setState("queued"); setMsg("Queued...");
+      const pr=await fetch(BASE+"/process",{method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({library_file:song.file,words:Number(words),model})});
+      const j=await pr.json();
+      if(j.error){setState("error");setFailedStage("upload");setErr(j.error);return;}
+      poll(j.job_id);
+    }catch(e){setState("error");setFailedStage("upload");setErr(String(e));}
+  }
+  function poll(id){
+    const t=setInterval(async()=>{
+      try{
+        const s=await (await fetch(BASE+"/status?id="+id)).json();
+        setState(s.state); setMsg(s.message||"");
+        if(typeof s.partial==="string" && s.partial) setStory(s.partial);
+        if(typeof s.reasoning==="string") setReasoning(s.reasoning);
+        if(Array.isArray(s.words)) setLex(s.words);
+        // Audio analysis is computed once and never changes within a job. Set it a
+        // single time — re-setting a fresh object each poll would re-fire Scope's
+        // useEffect and restart the draw animation (the "redraws forever" bug).
+        if(s.audio) setAudio(prev=>prev||s.audio);
+        if(s.failed_stage) setFailedStage(s.failed_stage);
+        if(s.state==="done"){clearInterval(t); setStory(s.story||s.partial||"");}
+        if(s.state==="error"){clearInterval(t); setErr(s.error||"Unknown error.");}
+      }catch(e){clearInterval(t); setState("error"); setErr(String(e));}
+    },600);
+  }
+
+  const EPOCHS=[
+    {key:"upload",   label:"Upload",        sub:"Sending the audio to the server."},
+    {key:"extract",  label:"Read waveform", sub:"Separating layers, extracting the features."},
+    {key:"generate", label:"Infer & write", sub:"Shaping the story, querying the lexicon, writing."},
+  ];
+  const ORDER={upload:0, extract:1, generate:2};
+  const ACTIVE_IDX={idle:-1, queued:0, extracting:1, generating:2, done:3, error:-1}[state];
+  function epochStatus(i){
+    if(state==="error"){
+      const fi = ORDER[failedStage] ?? 99;
+      if(i<fi) return "done";
+      if(i===fi) return "error";
+      return "pending";
+    }
+    if(ACTIVE_IDX>=3) return "done";
+    if(i<ACTIVE_IDX) return "done";
+    if(i===ACTIVE_IDX) return "active";
+    return "pending";
+  }
+
+  const typed  = cleanedStory.slice(0, shown);
+  const typing = shown < cleanedStory.length;
+  // which emotion the story is currently rendering — highlights that beat in the left arc.
+  const activeIdx = (lex.length && shown>0)
+    ? Math.min(lex.length-1, Math.floor((shown/Math.max(1, cleanedStory.length))*lex.length))
+    : -1;
+  return (
+    <div className="wrap">
+      <h1>Story<em>W</em>riter</h1>
+
+      {/* SETUP — source + graph + button on the left, style inputs on the right */}
+      <div className="setup">
+        <div className="panel">
+          <div className="library">
+            <div className="tabs" style={{display:"flex",gap:"6px",marginBottom:"10px",flexWrap:"wrap"}}>
+              {(library.genres||[]).map(g=>(
+                <button key={g} type="button" onClick={()=>setGenre(g)}
+                  style={{padding:"5px 12px",borderRadius:"6px",cursor:"pointer",font:"inherit",
+                          fontSize:"13px",border:"1px solid var(--amber-dim)",
+                          background:genre===g?"var(--amber)":"transparent",
+                          color:genre===g?"#1a1205":"var(--amber-dim)"}}>
+                  {g}
+                </button>))}
+            </div>
+            <div className="songlist" style={{maxHeight:"230px",overflowY:"auto",
+                 border:"1px solid var(--line)",borderRadius:"6px"}}>
+              {(library.songs||[]).filter(s=>s.genre===genre).map(s=>(
+                <div key={s.file} onClick={()=>chooseSong(s)}
+                  style={{padding:"7px 10px",cursor:"pointer",display:"flex",alignItems:"center",
+                          gap:"8px",borderBottom:"1px solid var(--line)",
+                          background:song&&song.file===s.file?"var(--line-amber)":"transparent"}}>
+                  <span style={{flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                    <strong style={{color:"var(--text)"}}>{s.title}</strong>
+                    <span style={{color:"var(--muted)"}}> {s.artist}</span>
+                  </span>
+                  {s.ready && <span title="Pre-baked, instant"
+                    style={{fontSize:"11px",color:"var(--amber)",letterSpacing:".08em"}}>READY</span>}
+                </div>))}
+              {!(library.songs||[]).filter(s=>s.genre===genre).length &&
+                <div className="out-empty" style={{padding:"12px"}}>No songs in this genre.</div>}
+            </div>
+          </div>
+          {audioUrl && <audio className="player" src={audioUrl} controls autoPlay/>}
+          <Scope running={running} audio={audio}/>
+          <button className="go" disabled={!song||running} onClick={analyze}>
+            {running?"Analyzing...":song?("Tell the story of "+song.title):"Pick a song"}
+          </button>
+        </div>
+
+        <div className="panel">
+          <div className="grid2">
+            <div>
+              <label htmlFor="words">Story length (words)</label>
+              <input id="words" type="number" min="100" max="5000" step="50"
+                value={words} onChange={e=>setWords(e.target.value)}/>
+            </div>
+            <div>
+              <label htmlFor="model">Ollama model</label>
+              <input id="model" value={model} onChange={e=>setModel(e.target.value)}
+                placeholder="qwen2.5:7b"/>
+            </div>
+          </div>
+          <div className="subpanel">
+            <div className="panel-title">Model Reasoning · b11</div>
+            <div className="reasonbox" ref={reasonBoxRef}>
+              {reasoning
+                ? reasoning
+                : (!running && <span className="reason-ph">What the model heard, its mapping, and the emotional arc will appear here as it works.</span>)}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* STORY — live status bar, then seeds (narrow, left) | the written story (right) */}
+      {state!=="idle" && <React.Fragment>
+        {state!=="done" && (running || msg) &&
+          <div className="statusbar">
+            <span className={"hdot"+(running?"":" idle")}></span>
+            <span>{msg||"Working…"}</span>
+            {running && <span className="elapsed">{Math.floor(elapsed/60)}:{String(elapsed%60).padStart(2,"0")}</span>}
+          </div>}
+        <div className="story-split">
+
+          {/* SEEDS — one phrase per line, the emotional/imagery map the story is built from */}
+          <div className="pane">
+            <div className="pane-header">
+              <span className={"hdot"+(running?"":" idle")}></span>
+              Emotional arc
+            </div>
+            <div className="pane-body seeds-body">
+              {lex.length
+                ? <SeedsList lex={lex} activeIdx={activeIdx}/>
+                : <div className="out-empty">
+                    {state==="extracting" ? "Reading the waveform…" : "Listening for the shape…"}
+                  </div>}
+            </div>
+          </div>
+
+          {/* STORY — the model's reading of the audio, then the prose typing out */}
+          <div className="pane">
+            <div className="pane-header">
+              <span className={"hdot"+(running?"":" idle")}></span>
+              {state==="error" ? "Error" : (story && typing ? "Writing…" : "Story")}
+            </div>
+            <div className="pane-body" ref={storyBodyRef}>
+              {err
+                ? <div className="out-err">{err}</div>
+                : (story
+                    ? <div className="out" ref={proseRef}>
+                        {typed.split(/\n{2,}/).map((para,i,arr)=>(
+                          <p key={i}>{para}
+                            {typing && i===arr.length-1 && <span className="cursor"></span>}
+                          </p>))}
+                      </div>
+                    : <div className="out-empty">
+                        {state==="generating"
+                          ? <span>Writing the story<span className="typing-dots"><span></span><span></span><span></span></span></span>
+                          : state==="extracting" ? "Reading the waveform…"
+                          : "Inferring the shape…"}
+                      </div>)}
+            </div>
+          </div>
+
+        </div>
+      </React.Fragment>}
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
