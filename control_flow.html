@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SyntaxVision — Control Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a0d12; --panel:#0e1219; --panel2:#11161f;
+  --amber:#f0b54a; --amber-dim:#b9863a; --amber-faint:rgba(240,181,74,.12);
+  --green:#4ade80; --green-faint:rgba(74,222,128,.08);
+  --red:#f87171;   --red-faint:rgba(248,113,113,.08);
+  --dim:#3a4150; --text:#c7cdd6; --muted:#6b7480;
+  --line:rgba(255,255,255,.07); --line-amber:rgba(240,181,74,.22);
+  --line-green:rgba(74,222,128,.25); --line-red:rgba(248,113,113,.25);
+  --cw:18px; /* connector indent width per depth */
+}
+*{box-sizing:border-box; margin:0; padding:0}
+html,body{height:100%; background:var(--ink); color:var(--text);
+  font-family:'Space Grotesk',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden}
+
+/* ── toolbar ── */
+.toolbar{
+  padding:8px 12px; background:var(--panel);
+  border-bottom:1px solid var(--line-amber);
+  position:sticky; top:0; z-index:10;
+}
+.tb-row1{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tb-row2{display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap}
+.toolbar h1{font-size:12px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--amber);white-space:nowrap;flex-shrink:0}
+select{
+  flex:1;min-width:0;
+  background:var(--panel2);color:var(--text);border:1px solid var(--dim);
+  border-radius:4px;padding:3px 8px;font-family:inherit;font-size:12px;
+  cursor:pointer;outline:none;
+}
+select:focus{border-color:var(--amber)}
+.spd-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);
+  letter-spacing:.1em;text-transform:uppercase;flex-shrink:0}
+.spd-group{display:flex;gap:3px}
+button.spd{
+  background:var(--panel2);color:var(--muted);border:1px solid var(--dim);
+  border-radius:3px;padding:2px 8px;font-family:inherit;font-size:11px;
+  cursor:pointer;outline:none;letter-spacing:.04em;
+}
+button.spd.active{background:var(--amber);color:#0a0d12;border-color:var(--amber);font-weight:600}
+.legend{display:flex;gap:10px;flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:4px;
+  font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dot-happy{background:var(--green)} .dot-branch{background:var(--red)}
+
+/* ── tree wrapper ── */
+.tree-wrap{padding:12px 10px 64px;min-height:60px}
+.empty{padding:32px 16px;text-align:center;color:var(--muted);
+  font-family:'IBM Plex Mono',monospace;font-size:12px}
+
+/* ── file header ── */
+.file-header{padding:0 2px 10px;border-bottom:1px solid var(--line-amber);margin-bottom:6px}
+.file-header h2{font-size:13px;font-weight:700;color:var(--amber);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.file-meta{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px}
+
+/* ── node wrappers ── */
+.node-wrap{position:relative}
+
+/* vertical connector line — grows from previous row midpoint down to current row midpoint */
+.vline{
+  position:absolute;
+  width:1px;
+  background:var(--line-amber);
+  transform-origin:top;
+  transform:scaleY(0);
+  opacity:.6;
+  pointer-events:none;
+}
+.vline.grow{animation:growDown var(--dur,140ms) ease-out forwards}
+
+/* horizontal tick */
+.htick{
+  position:absolute;
+  height:1px;
+  background:var(--line-amber);
+  opacity:0;
+  pointer-events:none;
+}
+.htick.pop{animation:fadeIn 70ms ease-out forwards}
+
+/* node row */
+.node-row{
+  display:flex;align-items:flex-start;gap:4px;
+  padding:2px 2px 2px 0; cursor:pointer;
+  border-radius:3px;
+  opacity:0;
+}
+.node-row.appear{animation:fadeIn var(--dur,140ms) ease-out forwards}
+/* twinkle — fires after appear, briefly glows the row */
+.node-row.twinkle{animation:twinkle 420ms ease-out forwards}
+.node-row:hover{background:rgba(255,255,255,.04)}
+
+/* type badge */
+.type-badge{
+  font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);
+  padding:1px 4px;border:1px solid var(--dim);border-radius:2px;
+  white-space:nowrap;flex-shrink:0;text-transform:uppercase;letter-spacing:.04em;
+  margin-top:2px;
+}
+
+/* happy/branch pill */
+.pill{
+  display:inline-flex;align-items:center;
+  padding:1px 5px;border-radius:2px;font-size:10px;
+  font-family:'IBM Plex Mono',monospace;white-space:nowrap;flex-shrink:0;margin-top:2px;
+}
+.pill-happy{background:var(--green-faint);color:var(--green);border:1px solid var(--line-green)}
+.pill-branch{background:var(--red-faint);color:var(--red);border:1px solid var(--line-red)}
+
+/* toggle chevron */
+.toggle{
+  width:14px;height:14px;flex-shrink:0;display:flex;
+  align-items:center;justify-content:center;
+  color:var(--muted);font-size:8px;margin-top:2px;
+  transition:transform .15s;
+}
+.toggle.open{transform:rotate(90deg)}
+.toggle.leaf{color:transparent;pointer-events:none}
+
+/* node name */
+.node-name{font-size:12px;font-weight:500;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.node-name.happy{color:#86efb8} .node-name.branch{color:#fca5a5}
+
+/* line range */
+.lrange{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);
+  margin-top:3px;white-space:nowrap;flex-shrink:0}
+
+/* annotation */
+.ann-row{opacity:0;padding:2px 0 6px 0}
+.ann-row.appear{animation:fadeIn var(--dur,130ms) ease-out forwards}
+.ann{
+  font-size:11px;color:var(--muted);line-height:1.5;
+  padding:2px 0 0 8px;
+  border-left:2px solid var(--dim);
+}
+.ann.happy{border-color:rgba(74,222,128,.25)}
+.ann.branch{border-color:rgba(248,113,113,.25);color:#c0a0a0}
+
+/* children container */
+.children{overflow:hidden}
+.children.collapsed{display:none}
+
+/* ── keyframes — matching StoryWriter's index.html ── */
+@keyframes growDown{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+/* twinkle: node glows amber then settles back — fires at 1 (fully visible) */
+@keyframes twinkle{
+  0%  {opacity:1; background:transparent}
+  20% {opacity:1; background:var(--amber-faint); outline:1px solid var(--line-amber);
+       border-radius:3px; box-shadow:0 0 8px rgba(240,181,74,.18)}
+  100%{opacity:1; background:transparent; outline:none; box-shadow:none}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .vline.grow,.node-row.appear,.node-row.twinkle,.ann-row.appear,.htick.pop{
+    animation:none;opacity:1;transform:none;background:transparent
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="tb-row1">
+    <h1>⬡ SyntaxVision</h1>
+    <select id="file-select"><option value="">— select file —</option></select>
+  </div>
+  <div class="tb-row2">
+    <span class="spd-label">speed</span>
+    <div class="spd-group">
+      <button class="spd" data-ms="420">slow</button>
+      <button class="spd active" data-ms="150">normal</button>
+      <button class="spd" data-ms="25">fast</button>
+    </div>
+    <div class="legend" style="margin-left:auto">
+      <span class="leg"><span class="dot dot-happy"></span>happy</span>
+      <span class="leg"><span class="dot dot-branch"></span>branch</span>
+    </div>
+  </div>
+</div>
+
+<div class="tree-wrap" id="tree-wrap">
+  <div class="empty">Select a file to visualize its control flow.</div>
+</div>
+
+<script>
+// ── speed ──────────────────────────────────────────────────────────────────
+let STEP_MS = 150;
+document.querySelectorAll('.spd').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.spd').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    STEP_MS = +btn.dataset.ms;
+  });
+});
+
+// ── constants ──────────────────────────────────────────────────────────────
+const CWIDTH = 18;
+const TYPE_LABELS = {
+  file:'file', function:'fn', block:'blk',
+  if:'if', else:'else', except:'ex', loop:'loop', try:'try'
+};
+
+// ── flatten visible nodes depth-first ─────────────────────────────────────
+function flattenVisible(node, depth, out) {
+  out.push({ node, depth });
+  if (node._open !== false && node.children && node.children.length)
+    for (const c of node.children) flattenVisible(c, depth + 1, out);
+  return out;
+}
+
+// ── build DOM for one node (invisible until animated) ─────────────────────
+function buildNodeEl(node, depth) {
+  const happy   = node.on_happy_path !== false;
+  const hasKids = node.children && node.children.length > 0;
+  const indentPx = depth * CWIDTH;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'node-wrap';
+
+  // vertical connector line
+  const vline = document.createElement('div');
+  vline.className = 'vline';
+  vline.style.left = (indentPx + CWIDTH / 2) + 'px';
+  wrap.appendChild(vline);
+
+  // horizontal tick
+  const htick = document.createElement('div');
+  htick.className = 'htick';
+  htick.style.left  = (indentPx + CWIDTH / 2) + 'px';
+  htick.style.width = (CWIDTH / 2) + 'px';
+  wrap.appendChild(htick);
+
+  // row
+  const row = document.createElement('div');
+  row.className = 'node-row';
+  row.style.paddingLeft = (indentPx + CWIDTH) + 'px';
+
+  const tog = document.createElement('span');
+  tog.className = 'toggle ' + (hasKids ? 'open' : 'leaf');
+  tog.textContent = '▶';
+  row.appendChild(tog);
+
+  const pill = document.createElement('span');
+  pill.className = 'pill ' + (happy ? 'pill-happy' : 'pill-branch');
+  pill.textContent = happy ? '✓' : '⤷';
+  row.appendChild(pill);
+
+  const badge = document.createElement('span');
+  badge.className = 'type-badge';
+  badge.textContent = TYPE_LABELS[node.type] || node.type;
+  row.appendChild(badge);
+
+  const nameEl = document.createElement('span');
+  nameEl.className = 'node-name ' + (happy ? 'happy' : 'branch');
+  nameEl.textContent = node.name || '';
+  row.appendChild(nameEl);
+
+  if (node.line_start != null) {
+    const lr = document.createElement('span');
+    lr.className = 'lrange';
+    lr.textContent = `L${node.line_start}`;
+    row.appendChild(lr);
+  }
+  wrap.appendChild(row);
+
+  if (node.annotation) {
+    const annRow = document.createElement('div');
+    annRow.className = 'ann-row';
+    annRow.style.paddingLeft = (indentPx + CWIDTH + 2) + 'px';
+    const ann = document.createElement('div');
+    ann.className = 'ann ' + (happy ? 'happy' : 'branch');
+    ann.textContent = node.annotation;
+    annRow.appendChild(ann);
+    wrap.appendChild(annRow);
+    row._annRow = annRow;
+  }
+
+  if (hasKids) {
+    const childrenEl = document.createElement('div');
+    childrenEl.className = 'children';
+    node._childrenEl = childrenEl;
+
+    tog.addEventListener('click', e => {
+      e.stopPropagation();
+      const open = node._open !== false;
+      node._open = !open;
+      childrenEl.classList.toggle('collapsed', open);
+      tog.classList.toggle('open', !open);
+    });
+
+    wrap.appendChild(childrenEl);
+  }
+
+  row._vline  = vline;
+  row._htick  = htick;
+  node._rowEl = row;
+  node._wrapEl = wrap;
+  return wrap;
+}
+
+// ── sequential animation ───────────────────────────────────────────────────
+let animTimer = null;
+
+function animateNodes(flatNodes) {
+  if (animTimer) clearTimeout(animTimer);
+  let i = 0;
+  const total = flatNodes.length;
+
+  function revealNext() {
+    if (i >= total) return;
+    const isLast = (i === total - 1);
+    const { node } = flatNodes[i];
+    const row    = node._rowEl;
+    const vline  = row._vline;
+    const htick  = row._htick;
+    const annRow = row._annRow || null;
+    const dur    = Math.max(50, STEP_MS * 0.72);
+
+    // 1. grow vertical connector from previous node midpoint down to this row midpoint
+    const rowTop = row.offsetTop;
+    const rowMid = rowTop + row.offsetHeight / 2;
+    const prevMid = i === 0 ? rowMid : (() => {
+      const pr = flatNodes[i - 1].node._rowEl;
+      return pr ? pr.offsetTop + pr.offsetHeight / 2 : rowMid;
+    })();
+
+    const lineH = Math.max(4, rowMid - prevMid);
+    vline.style.top    = prevMid + 'px';
+    vline.style.height = lineH + 'px';
+    vline.style.setProperty('--dur', dur + 'ms');
+    void vline.offsetWidth;
+    vline.classList.add('grow');
+
+    // 2. horizontal tick appears when line arrives
+    htick.style.top = (rowMid - 0.5) + 'px';
+    setTimeout(() => { void htick.offsetWidth; htick.classList.add('pop'); }, dur * 0.8);
+
+    // 3. node row fades in
+    row.style.setProperty('--dur', dur + 'ms');
+    setTimeout(() => { void row.offsetWidth; row.classList.add('appear'); }, dur * 0.55);
+
+    // 4. annotation fades in just after row
+    if (annRow) {
+      annRow.style.setProperty('--dur', (dur * 0.85) + 'ms');
+      setTimeout(() => { void annRow.offsetWidth; annRow.classList.add('appear'); }, dur * 0.85);
+    }
+
+    // 5. twinkle — fires once the row is fully visible
+    //    All nodes get a quick twinkle; last node gets a slightly longer glow
+    const twinkleDelay = dur * 0.55 + dur + (isLast ? 60 : 0);
+    setTimeout(() => {
+      // swap appear for twinkle so the glow animation fires from opacity:1
+      row.classList.remove('appear');
+      row.style.opacity = '1';   // keep it visible
+      void row.offsetWidth;
+      row.classList.add('twinkle');
+    }, twinkleDelay);
+
+    i++;
+    animTimer = setTimeout(revealNext, STEP_MS);
+  }
+
+  revealNext();
+}
+
+// ── build & animate tree for a doc ────────────────────────────────────────
+function renderTree(doc) {
+  const wrap = document.getElementById('tree-wrap');
+  wrap.innerHTML = '';
+  if (animTimer) clearTimeout(animTimer);
+
+  const header = document.createElement('div');
+  header.className = 'file-header';
+  const h2 = document.createElement('h2');
+  h2.textContent = '📄 ' + doc.file;
+  header.appendChild(h2);
+  const meta = document.createElement('div');
+  meta.className = 'file-meta';
+  const ts = doc.execution && doc.execution.timestamp
+    ? new Date(doc.execution.timestamp * 1000).toLocaleString() : '';
+  meta.textContent = [doc.model, ts, doc.execution && doc.execution.status]
+    .filter(Boolean).join('  ·  ');
+  header.appendChild(meta);
+  wrap.appendChild(header);
+
+  function buildTree(node, depth, container) {
+    const wrapEl = buildNodeEl(node, depth);
+    container.appendChild(wrapEl);
+    if (node.children && node.children.length && node._childrenEl)
+      for (const child of node.children)
+        buildTree(child, depth + 1, node._childrenEl);
+  }
+
+  if (doc.tree && doc.tree.children)
+    for (const child of doc.tree.children)
+      buildTree(child, 0, wrap);
+
+  requestAnimationFrame(() => {
+    const flat = [];
+    if (doc.tree && doc.tree.children)
+      for (const child of doc.tree.children)
+        flattenVisible(child, 0, flat);
+    animateNodes(flat);
+  });
+}
+
+// ── bootstrap ──────────────────────────────────────────────────────────────
+async function loadFiles() {
+  try {
+    const data = await fetch('/control_flow').then(r => r.json());
+    const sel  = document.getElementById('file-select');
+    for (const f of (data.files || [])) {
+      const opt = document.createElement('option');
+      opt.value = f; opt.textContent = f;
+      sel.appendChild(opt);
+    }
+  } catch(e) { console.error('file list failed', e); }
+}
+
+async function loadFile(filename) {
+  if (!filename) return;
+  document.getElementById('tree-wrap').innerHTML = '<div class="empty">Loading…</div>';
+  try {
+    const data = await fetch(`/control_flow?file=${encodeURIComponent(filename)}`).then(r => r.json());
+    if (data.error)
+      document.getElementById('tree-wrap').innerHTML =
+        `<div class="empty">Error: ${data.error}</div>`;
+    else
+      renderTree(data);
+  } catch(e) {
+    document.getElementById('tree-wrap').innerHTML =
+      `<div class="empty">Failed: ${e.message}</div>`;
+  }
+}
+
+document.getElementById('file-select').addEventListener('change', e => loadFile(e.target.value));
+loadFiles();
+</script>
+</body>
+</html>

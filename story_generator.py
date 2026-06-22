@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 r"""
 story_generator.py — StoryWriter's brain.  The MODEL drives.

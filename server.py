@@ -305,6 +305,27 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(body)
             return
+        if u.path == "/control_flow":
+            qs = urllib.parse.parse_qs(u.query)
+            fn = qs.get("file", [""])[0]
+            model = qs.get("model", ["claude"])[0]
+            try:
+                from pymongo import MongoClient
+                import datetime
+                cli = MongoClient(MONGO_URI, serverSelectionTimeoutMS=2000)
+                db = cli["SyntaxVision"]
+                if fn:
+                    doc = db["ControlFlow"].find_one({"file": fn, "model": model},
+                                                     {"_id": 0})
+                    return self._send(200, doc or {"error": "not found"})
+                else:
+                    files = db["ControlFlow"].distinct("file")
+                    return self._send(200, {"files": sorted(files)})
+            except Exception as e:
+                return self._send(500, {"error": str(e)})
+        if u.path == "/control_flow.html":
+            with open(os.path.join(HERE, "control_flow.html"), "rb") as f:
+                return self._send(200, f.read())
         if u.path == "/library":          # the genre-tabbed song catalog, with 'ready' flags
             cat = load_catalog()
             ready = prebaked_files()

@@ -202,6 +202,14 @@
   .story-split{display:grid; grid-template-columns:250px 1fr; gap:18px; margin-top:18px; align-items:start}
   @media(max-width:680px){.story-split{grid-template-columns:1fr}}
   .seeds-body{padding:8px 14px 14px}
+  /* left pane tabs — Arc / Flow */
+  .pane-tabs{display:flex; border-bottom:1px solid var(--line); overflow:hidden}
+  .pane-tab{flex:1; padding:8px 0; text-align:center; font-family:'IBM Plex Mono',monospace;
+    font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted);
+    cursor:pointer; background:none; border:none; transition:color .15s,background .15s}
+  .pane-tab:hover{color:var(--text); background:rgba(255,255,255,.03)}
+  .pane-tab.active{color:var(--amber); border-bottom:2px solid var(--amber); margin-bottom:-1px}
+  .flow-frame{width:100%; border:none; flex:1; min-height:500px; display:block; background:var(--ink)}
   .seed-line{position:relative; display:flex; gap:11px; align-items:flex-start; padding:8px 0;
     animation:fadeIn .4s ease-out}
   /* thin vertical connector threading the seed dots into a timeline */
@@ -447,6 +455,7 @@ function App(){
   const [err,setErr]=useState("");
   const [failedStage,setFailedStage]=useState(null);
   const [audioUrl,setAudioUrl]=useState(null);  // object URL of the loaded track, for playback
+  const [leftTab,setLeftTab]=useState("arc");   // "arc" | "flow"
   const inputRef=useRef();
   const cleanedStory = stripLabels(story, lex);   // prose with the emotion labels scrubbed out
   const storyRef=useRef(""); storyRef.current=cleanedStory;
@@ -667,19 +676,24 @@ function App(){
           </div>}
         <div className="story-split">
 
-          {/* SEEDS — one phrase per line, the emotional/imagery map the story is built from */}
+          {/* LEFT PANE — tabbed: Emotional arc | Control flow */}
           <div className="pane">
-            <div className="pane-header">
-              <span className={"hdot"+(running?"":" idle")}></span>
-              Emotional arc
+            <div className="pane-tabs">
+              <button className={"pane-tab"+(leftTab==="arc"?" active":"")}
+                onClick={()=>setLeftTab("arc")}>Arc</button>
+              <button className={"pane-tab"+(leftTab==="flow"?" active":"")}
+                onClick={()=>setLeftTab("flow")}>Flow</button>
             </div>
-            <div className="pane-body seeds-body">
-              {lex.length
-                ? <SeedsList lex={lex} activeIdx={activeIdx}/>
-                : <div className="out-empty">
-                    {state==="extracting" ? "Reading the waveform…" : "Listening for the shape…"}
-                  </div>}
-            </div>
+            {leftTab==="arc"
+              ? <div className="pane-body seeds-body">
+                  {lex.length
+                    ? <SeedsList lex={lex} activeIdx={activeIdx}/>
+                    : <div className="out-empty">
+                        {state==="extracting" ? "Reading the waveform…" : "Listening for the shape…"}
+                      </div>}
+                </div>
+              : <iframe className="flow-frame" src="/control_flow.html" title="Control Flow"/>
+            }
           </div>
 
           {/* STORY — the model's reading of the audio, then the prose typing out */}
