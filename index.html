@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.23.10/babel.min.js"></script>
 <style>
   :root{
     --ink:#0a0d12; --panel:#0e1219; --panel2:#11161f;
@@ -248,7 +248,7 @@
 </head>
 <body>
 <div id="root"></div>
-<script type="text/babel">
+<script type="text/babel" data-type="module" data-presets="react">
 const {useState,useRef,useCallback,useEffect} = React;
 
 // Mount path: "" standalone, "/storywriter" behind the gateway. Same file, both places.
@@ -432,8 +432,8 @@ const HINTS={
 function App(){
   const [file,setFile]=useState(null);
   const [over,setOver]=useState(false);
-  const [words,setWords]=useState(150);
-  const [model,setModel]=useState("qwen2.5:7b");// editable below; must match an `ollama list` tag. Tool-capable models only (qwen2.5, llama3.1, llama3.2). 7b = best prose, 3b = ~3x faster.
+  const [words,setWords]=useState(750);
+  const [model,setModel]=useState("qwen2.5:3b");// editable below; must match an `ollama list` tag. Tool-capable models only (qwen2.5, llama3.1, llama3.2). 7b = best prose, 3b = ~3x faster.
   const reasonBoxRef=useRef(null);              // the "model's reading" scroll box
   const [state,setState]=useState("idle");      // idle|queued|extracting|generating|done|error
   const [msg,setMsg]=useState("");
@@ -500,6 +500,8 @@ function App(){
     const b=reasonBoxRef.current; if(b) b.scrollTop=b.scrollHeight;
   },[reasoning]);
 
+  const running = ["queued","extracting","generating"].includes(state);
+
   // A client-side elapsed clock so the run always looks alive, even during the minutes the
   // model spends reading its prompt (when the backend emits nothing at all).
   useEffect(()=>{
@@ -517,7 +519,6 @@ function App(){
   const onDrop=useCallback(e=>{e.preventDefault();setOver(false);
     const f=e.dataTransfer.files[0]; if(f) chooseFile(f);},[]);
   const pick=e=>{ chooseFile(e.target.files[0]); };
-  const running = ["queued","extracting","generating"].includes(state);
 
   async function analyze(){
     if(!song) return;
@@ -636,7 +637,7 @@ function App(){
           <div className="grid2">
             <div>
               <label htmlFor="words">Story length (words)</label>
-              <input id="words" type="number" min="100" max="5000" step="50"
+              <input id="words" type="number" min="100" max="750" step="50"
                 value={words} onChange={e=>setWords(e.target.value)}/>
             </div>
             <div>

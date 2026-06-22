@@ -33,7 +33,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_ROOT = os.path.join(HERE, "uploads")
-PORT = 8000
+PORT = 8765
 PY = sys.executable
 # On Windows, keep child processes (extractor, generator, their ffmpeg) windowless.
 _NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0) if os.name == "nt" else 0
@@ -413,8 +413,8 @@ class Handler(BaseHTTPRequestHandler):
                 RUNNING += 1
             author = (data.get("author") or "").strip()[:120]   # style now comes from the openings
             model  = (data.get("model")  or "qwen2.5:7b").strip()[:80]
-            try: words = max(100, min(5000, int(data.get("words", 150))))
-            except (TypeError, ValueError): words = 700
+            try: words = max(100, min(750, int(data.get("words", 750))))
+            except (TypeError, ValueError): words = 750
             prompt_file = None
             if (data.get("prompt") or "").strip():
                 prompt_file = os.path.join(jobdir, "prompt.txt")

@@ -342,7 +342,8 @@ def vad_feeling(v, a):
     ab = 0 if a < lo else (2 if a > hi else 1)
     return grid[vb][ab]
 
-WRITER_SYSTEM = (
+_WRITER_SYSTEM_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "writer_system.txt")
+_WRITER_SYSTEM_DEFAULT = (
     "You are a literary science-fiction writer. EVERY story you write here is a DARK, "
     "DYSTOPIAN SCIENCE-FICTION story in the spirit of Black Mirror, and it ALWAYS ends on an "
     "UNSETTLING REVEAL. That genre and that ending are FIXED — they OVERRIDE every other "
@@ -365,8 +366,17 @@ WRITER_SYSTEM = (
     "THE EMOTIONAL ARC you are given is ONLY a mood contour to pass through — it NEVER changes "
     "the genre or the dark ending. A 'warm' or 'hopeful' beat is hope inside a dystopia, about "
     "to be betrayed by the reveal; render it that way, never as genuine comfort.\n\n"
-    "Aim for about {words} words. Output ONLY the story prose."
+    "Aim for about {words} words. You MUST finish on a complete sentence ending with "
+    "a period — never stop mid-sentence. Output ONLY the story prose."
 )
+def _load_writer_system():
+    try:
+        with open(_WRITER_SYSTEM_FILE, encoding="utf-8") as f:
+            t = f.read().strip()
+            return t if t else _WRITER_SYSTEM_DEFAULT
+    except FileNotFoundError:
+        return _WRITER_SYSTEM_DEFAULT
+WRITER_SYSTEM = _load_writer_system()
 
 def arc_sentence(seeds):
     """The emotional arc as a plain feelings-phrase — no numbers, no list — so the model
@@ -508,7 +518,7 @@ class ReasonRouter:
         self.buf = ""
 
 
-def synmain():
+def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("arcs_csv")
     ap.add_argument("--author", default="")   # off by default; style comes from the openings
@@ -633,7 +643,7 @@ def synmain():
 
     # Generous token headroom so the model can reach a real ending instead of being cut off
     # mid-sentence. It's a ceiling, not a target — the model stops when the story is done.
-    prose_predict = int(min(4096, max(1024, args.words * 4)))
+    prose_predict = int(min(8192, max(2048, args.words * 6)))
 
     def prose_pass(sys_prompt, user_prompt, status_msg, temp):
         """The streaming writing pass. Clears the pane (story_reset), streams clean prose,
